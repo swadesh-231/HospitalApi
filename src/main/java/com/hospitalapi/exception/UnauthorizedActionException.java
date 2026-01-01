@@ -1,0 +1,7 @@
+package com.hospitalapi.exception;
+
+public class UnauthorizedActionException extends RuntimeException {
+    public UnauthorizedActionException(String message) {
+        super(message);
+    }
+}
