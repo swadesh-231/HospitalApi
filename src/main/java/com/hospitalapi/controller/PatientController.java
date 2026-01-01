@@ -1,8 +1,7 @@
 package com.hospitalapi.controller;
 
-import com.hospitalapi.dto.InsuranceRequestDto;
-import com.hospitalapi.dto.PatientRequestDto;
-import com.hospitalapi.dto.PatientResponseDto;
+import com.hospitalapi.dto.CreatePatientRequest;
+import com.hospitalapi.dto.PatientResponse;
 import com.hospitalapi.service.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,33 +12,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/patient")
+@RequestMapping("/patients")
 @RequiredArgsConstructor
 public class PatientController {
+
     private final PatientService patientService;
+
     @PostMapping
-    public ResponseEntity<PatientResponseDto> createPatient(@Valid @RequestBody PatientRequestDto request) {
-        PatientResponseDto response = patientService.createPatient(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PatientResponse> create(
+            @Valid @RequestBody CreatePatientRequest request) {
+        return ResponseEntity.ok(patientService.createPatient(request));
     }
-    @GetMapping("/{patientId}")
-    public ResponseEntity<PatientResponseDto> getPatientById(@PathVariable Long patientId) {
-        return ResponseEntity.ok(patientService.getPatientById(patientId));
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(patientService.getPatientById(id));
     }
+
     @GetMapping
-    public ResponseEntity<List<PatientResponseDto>> getAllPatients() {
+    public ResponseEntity<List<PatientResponse>> getAll() {
         return ResponseEntity.ok(patientService.getAllPatients());
     }
-    @PutMapping("/{patientId}")
-    public ResponseEntity<PatientResponseDto> updatePatient(@PathVariable Long patientId, @Valid @RequestBody PatientRequestDto request) {
-        return ResponseEntity.ok(patientService.updatePatient(patientId, request));
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PatientResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody CreatePatientRequest request) {
+        return ResponseEntity.ok(patientService.updatePatient(id, request));
     }
-    @DeleteMapping("/{patientId}")
-    public ResponseEntity<Void> deletePatient(@PathVariable Long patientId) {patientService.deletePatient(patientId);
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        patientService.deletePatient(id);
         return ResponseEntity.noContent().build();
-    }
-    @PostMapping("/{patientId}/insurance")
-    public ResponseEntity<PatientResponseDto> addInsurance(@PathVariable Long patientId, @Valid @RequestBody InsuranceRequestDto request) {
-        return ResponseEntity.ok(patientService.addInsurance(patientId, request));
     }
 }

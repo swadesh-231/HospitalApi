@@ -8,37 +8,19 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface PatientRepository extends JpaRepository<Patient, Long> {
-    Patient findByName(String name);
-    @Query("""
-        SELECT p
-        FROM Patient p
-        WHERE LOWER(p.name) LIKE LOWER(CONCAT('%', :name, '%'))
-    """)
-    List<Patient> searchByName(@Param("name") String name);
+    Optional<Patient> findByEmail(String email);
 
     @Query("""
-        SELECT p
-        FROM Patient p
-        WHERE p.birthDate = :dob
+        SELECT p FROM Patient p
+        WHERE (:name IS NULL OR p.name LIKE %:name%)
+          AND (:email IS NULL OR p.email = :email)
+          AND (:bloodGroup IS NULL OR p.bloodGroup = :bloodGroup)
     """)
-    List<Patient> searchByBirthDate(@Param("dob") LocalDate dob);
-
-    @Query("""
-        SELECT p
-        FROM Patient p
-        WHERE p.bloodGroup = :bloodGroup
-    """)
-    List<Patient> searchByBloodGroup(
-            @Param("bloodGroup") BloodGroupType bloodGroup
-    );
-
-    @Query("""
-        SELECT p
-        FROM Patient p
-        WHERE p.email = :email
-    """)
-    Patient searchByEmail(@Param("email") String email);
-    boolean existsByEmail(String email);
+    List<Patient> search(
+            @Param("name") String name,
+            @Param("email") String email,
+            @Param("bloodGroup") BloodGroupType bloodGroup);
 }

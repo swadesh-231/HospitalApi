@@ -1,6 +1,7 @@
 package com.hospitalapi.entity;
 
 import com.hospitalapi.entity.enums.BloodGroupType;
+import com.hospitalapi.entity.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,27 +17,37 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@Table(indexes = {
+        @Index(name = "idx_patient_email", columnList = "email")
+})
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, length = 40)
     private String name;
+
     private LocalDate birthDate;
+
     @Column(unique = true, nullable = false)
     private String email;
-    private String gender;
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
     @Enumerated(EnumType.STRING)
     private BloodGroupType bloodGroup;
 
-    @OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
-    @JoinColumn(name = "patient_insurance_id")
-    private Insurance insurance; //owning side
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "patient") //inverse side
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "insurance_id")
+    private Insurance insurance;
+
+    @OneToMany(mappedBy = "patient")
     private List<Appointment> appointments = new ArrayList<>();
 
 }

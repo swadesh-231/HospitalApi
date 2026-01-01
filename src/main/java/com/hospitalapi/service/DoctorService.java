@@ -1,14 +1,12 @@
 package com.hospitalapi.service;
 
-import com.hospitalapi.dto.DoctorRequestDto;
-import com.hospitalapi.dto.DoctorResponseDto;
+import com.hospitalapi.dto.CreateDoctorRequest;
+import com.hospitalapi.dto.DoctorResponse;
 
 import java.util.List;
 
 public interface DoctorService {
-    DoctorResponseDto createDoctor(DoctorRequestDto request);
-    DoctorResponseDto getDoctorById(Long doctorId);
-    List<DoctorResponseDto> getAllDoctors();
-    DoctorResponseDto updateDoctor(Long doctorId, DoctorRequestDto request);
-    void deleteDoctor(Long doctorId);
+    DoctorResponse createDoctor(CreateDoctorRequest request);
+    DoctorResponse getDoctorById(Long id);
+    List<DoctorResponse> getDoctorsByDepartment(Long departmentId);
 }

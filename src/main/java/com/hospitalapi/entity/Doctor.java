@@ -14,21 +14,26 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@Table(indexes = {
+        @Index(name = "idx_doctor_email", columnList = "email")
+})
 public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 100)
     private String specialization;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
     @OneToMany(mappedBy = "doctor")
-    private List<Appointment> appointments = new ArrayList<>(); //inverse side
-    @ManyToMany(mappedBy = "doctors")
-    private Set<Department> departments = new HashSet<>(); //inverse side
+    private List<Appointment> appointments = new ArrayList<>();
 }

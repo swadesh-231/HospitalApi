@@ -1,8 +1,7 @@
 package com.hospitalapi.service.impl;
 
-import com.hospitalapi.dto.InsuranceRequestDto;
-import com.hospitalapi.dto.PatientRequestDto;
-import com.hospitalapi.dto.PatientResponseDto;
+import com.hospitalapi.dto.CreatePatientRequest;
+import com.hospitalapi.dto.PatientResponse;
 import com.hospitalapi.entity.Insurance;
 import com.hospitalapi.entity.Patient;
 import com.hospitalapi.exception.BadRequestException;
@@ -10,83 +9,80 @@ import com.hospitalapi.exception.ResourceNotFoundException;
 import com.hospitalapi.repository.InsuranceRepository;
 import com.hospitalapi.repository.PatientRepository;
 import com.hospitalapi.service.PatientService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class PatientServiceImpl implements PatientService {
+
     private final PatientRepository patientRepository;
-    private final ModelMapper modelMapper;
-    private final InsuranceRepository insuranceRepository;
 
     @Override
-    public PatientResponseDto createPatient(PatientRequestDto request) {
-        if (patientRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email already registered");
-        }
-        Patient patient = modelMapper.map(request, Patient.class);
+    public PatientResponse createPatient(CreatePatientRequest request) {
+        Patient patient = Patient.builder()
+                .name(request.name())
+                .email(request.email())
+                .birthDate(request.birthDate())
+                .gender(request.gender())
+                .bloodGroup(request.bloodGroup())
+                .build();
+
         Patient saved = patientRepository.save(patient);
-        return modelMapper.map(saved, PatientResponseDto.class);
+        return mapToResponse(saved);
     }
-    @Override
-    public PatientResponseDto getPatientById(Long patientId) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with id: " + patientId)
-                );
 
-        return modelMapper.map(patient, PatientResponseDto.class);
-    }
     @Override
-    public List<PatientResponseDto> getAllPatients() {
+    public PatientResponse getPatientById(Long id) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+        return mapToResponse(patient);
+    }
+
+    @Override
+    public List<PatientResponse> getAllPatients() {
         return patientRepository.findAll()
                 .stream()
-                .map(p -> modelMapper.map(p, PatientResponseDto.class))
+                .map(this::mapToResponse)
                 .toList();
     }
+
     @Override
-    public PatientResponseDto updatePatient(Long patientId, PatientRequestDto request) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with id: " + patientId)
-                );
+    public PatientResponse updatePatient(Long id, CreatePatientRequest request) {
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
 
-        modelMapper.map(request, patient); // now skips nulls
+        patient.setName(request.name());
+        patient.setBirthDate(request.birthDate());
+        patient.setGender(request.gender());
+        patient.setBloodGroup(request.bloodGroup());
 
-        Patient updatedPatient = patientRepository.save(patient);
-
-        return modelMapper.map(updatedPatient, PatientResponseDto.class);
+        return mapToResponse(patient);
     }
 
     @Override
-    public void deletePatient(Long patientId) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with id: " + patientId)
-                );
-        patientRepository.delete(patient);
+    public void deletePatient(Long id) {
+        if (!patientRepository.existsById(id)) {
+            throw new EntityNotFoundException("Patient not found");
+        }
+        patientRepository.deleteById(id);
     }
 
-    @Override
-    public PatientResponseDto addInsurance(Long patientId, InsuranceRequestDto request) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Patient not found with id: " + patientId)
-                );
-        if (patient.getInsurance() != null) {
-            throw new BadRequestException("Patient already has insurance");
-        }
-        if (insuranceRepository.existsByPolicyNumber(request.getPolicyNumber())) {
-            throw new BadRequestException("Insurance policy number already exists");
-        }
-        Insurance insurance = modelMapper.map(request, Insurance.class);
-        patient.setInsurance(insurance); // owning side ONLY
-
-        return modelMapper.map(patient, PatientResponseDto.class);
+    private PatientResponse mapToResponse(Patient patient) {
+        return new PatientResponse(
+                patient.getId(),
+                patient.getName(),
+                patient.getEmail(),
+                patient.getGender(),
+                patient.getBloodGroup(),
+                patient.getCreatedAt()
+        );
     }
 }

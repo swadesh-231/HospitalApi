@@ -1,14 +1,15 @@
 package com.hospitalapi.service;
 
-import com.hospitalapi.dto.AppointmentRequestDto;
-import com.hospitalapi.dto.AppointmentResponseDto;
+import com.hospitalapi.dto.AppointmentResponse;
+import com.hospitalapi.dto.CreateAppointmentRequest;
 
 import java.util.List;
 
 public interface AppointmentService {
-    AppointmentResponseDto createAppointment(AppointmentRequestDto request);
-    AppointmentResponseDto getAppointmentById(Long appointmentId);
-    List<AppointmentResponseDto> getAppointmentsByPatient(Long patientId);
-    List<AppointmentResponseDto> getAppointmentsByDoctor(Long doctorId);
-    void cancelAppointment(Long appointmentId);
+    AppointmentResponse createAppointment(CreateAppointmentRequest request);
+    AppointmentResponse getAppointment(Long id);
+    List<AppointmentResponse> getAppointmentsByPatient(Long patientId);
+    List<AppointmentResponse> getAppointmentsByDoctor(Long doctorId);
+    void cancelAppointment(Long id);
+    void completeAppointment(Long id);
 }

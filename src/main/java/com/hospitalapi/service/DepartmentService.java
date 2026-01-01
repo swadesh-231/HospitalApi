@@ -1,16 +1,14 @@
 package com.hospitalapi.service;
 
-import com.hospitalapi.dto.DepartmentRequestDto;
-import com.hospitalapi.dto.DepartmentResponseDto;
+import com.hospitalapi.dto.CreateDepartmentRequest;
+import com.hospitalapi.dto.DepartmentResponse;
 
 import java.util.List;
 
 public interface DepartmentService {
-    DepartmentResponseDto createDepartment(DepartmentRequestDto request);
-    DepartmentResponseDto getDepartmentById(Long departmentId);
-    List<DepartmentResponseDto> getAllDepartments();
-    DepartmentResponseDto assignHeadDoctor(Long departmentId, Long doctorId);
-    DepartmentResponseDto addDoctorToDepartment(Long departmentId, Long doctorId);
-    DepartmentResponseDto removeDoctorFromDepartment(Long departmentId, Long doctorId);
+    DepartmentResponse createDepartment(CreateDepartmentRequest request);
+    List<DepartmentResponse> getAllDepartments();
+    DepartmentResponse getDepartmentById(Long id);
+    void assignHeadDoctor(Long departmentId, Long doctorId);
 
 }
