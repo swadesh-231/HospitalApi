@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +20,8 @@ public class GlobalExceptionHandler {
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult()
-          .getFieldErrors()
-          .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
+                .getFieldErrors()
+                .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
 
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .success(false)
@@ -32,35 +33,49 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(response);
     }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(ResourceNotFoundException ex) {
         return buildResponse(
                 ex.getMessage(),
-                HttpStatus.NOT_FOUND
-        );
+                HttpStatus.NOT_FOUND);
     }
+
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<ApiResponse<Void>> handleDuplicate(DuplicateResourceException ex) {
 
         return buildResponse(
                 ex.getMessage(),
-                HttpStatus.CONFLICT
-        );
+                HttpStatus.CONFLICT);
     }
+
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(BadRequestException ex) {
         return buildResponse(
                 ex.getMessage(),
-                HttpStatus.BAD_REQUEST
-        );
+                HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(UnauthorizedActionException.class)
     public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedActionException ex) {
 
         return buildResponse(
                 ErrorMessages.MESSAGES.get("UNAUTHORIZED"),
-                HttpStatus.UNAUTHORIZED
-        );
+                HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEntityNotFound(EntityNotFoundException ex) {
+        return buildResponse(
+                ex.getMessage(),
+                HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalState(IllegalStateException ex) {
+        return buildResponse(
+                ex.getMessage(),
+                HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -68,8 +83,7 @@ public class GlobalExceptionHandler {
 
         return buildResponse(
                 ErrorMessages.MESSAGES.get("TYPE_MISMATCH"),
-                HttpStatus.BAD_REQUEST
-        );
+                HttpStatus.BAD_REQUEST);
     }
 
     // 6. Illegal Argument (Bad API usage)
@@ -78,8 +92,7 @@ public class GlobalExceptionHandler {
 
         return buildResponse(
                 ex.getMessage(),
-                HttpStatus.BAD_REQUEST
-        );
+                HttpStatus.BAD_REQUEST);
     }
 
     // 7. Fallback – NEVER expose stacktrace
@@ -88,8 +101,7 @@ public class GlobalExceptionHandler {
 
         return buildResponse(
                 ErrorMessages.MESSAGES.get("INTERNAL_ERROR"),
-                HttpStatus.INTERNAL_SERVER_ERROR
-        );
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Reusable builder

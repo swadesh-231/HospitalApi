@@ -9,4 +9,5 @@ public interface DoctorService {
     DoctorResponse createDoctor(CreateDoctorRequest request);
     DoctorResponse getDoctorById(Long id);
     List<DoctorResponse> getDoctorsByDepartment(Long departmentId);
+    List<DoctorResponse> getAllDoctors();
 }

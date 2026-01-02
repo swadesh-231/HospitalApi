@@ -1,5 +1,7 @@
 package com.hospitalapi.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CreateDepartmentRequest(
-        String name
-) {}
+                @NotBlank(message = "Department name is required") String name) {
+}

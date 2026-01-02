@@ -1,5 +1,6 @@
 # Hospital Management API
 
+<<<<<<< HEAD
 A comprehensive RESTful API for managing hospital operations including patients, doctors, departments, appointments, and insurance information. Built with Spring Boot and PostgreSQL.
 
 ## Features
@@ -262,10 +263,50 @@ mvn test
 # Gradle
 gradle test
 ```
+=======
+A beginner-friendly Spring Boot REST API for hospital management.
+
+## Features
+
+### Admin Operations (`/admin`)
+- Add doctors to the system
+- Create hospital departments
+- Assign head doctor to departments
+- View all doctors and departments
+
+### Doctor Operations (`/doctors`)
+- View doctor profile
+- See scheduled appointments
+- Complete appointments
+
+### Patient Operations (`/patients`)
+- Patient registration
+- Book appointment with doctor
+- View and cancel appointments
+- Add and view insurance
+
+## Real-World Business Logic
+
+| Feature | Description |
+|---------|-------------|
+| Duplicate Prevention | Patients/Doctors can't have same email |
+| No Double-Booking | Doctors have 30-min appointment slots |
+| Status Validation | Only scheduled appointments can be cancelled/completed |
+| Data Integrity | Can't delete patient with active appointments |
+
+## Tech Stack
+
+- **Java 21**
+- **Spring Boot 3.5**
+- **Spring Data JPA**
+- **PostgreSQL**
+- **Lombok**
+>>>>>>> 2d2637f (add security config)
 
 ## Project Structure
 
 ```
+<<<<<<< HEAD
 src/
 ├── main/
 │   ├── java/com/hospitalapi/
@@ -311,3 +352,56 @@ For questions or support, please contact the development team.
 - [ ] Pagination for list endpoints
 - [ ] Advanced search and filtering
 - [ ] Audit logging
+=======
+src/main/java/com/hospitalapi/
+├── controller/          # 3 REST Controllers
+│   ├── AdminController
+│   ├── DoctorController
+│   └── PatientController
+├── service/             # Business logic
+├── repository/          # Data access
+├── entity/              # JPA entities
+├── dto/                 # Request/Response DTOs
+└── exception/           # Global error handling
+```
+
+## Is This Beginner Friendly?
+
+**Yes!** This project demonstrates:
+
+✅ Clean REST API design with proper HTTP methods  
+✅ Service layer pattern (separation of concerns)  
+✅ DTO pattern (never expose entities directly)  
+✅ Global exception handling  
+✅ Input validation with Jakarta Validation  
+✅ JPA relationships (OneToOne, OneToMany, ManyToOne)  
+✅ Real-world business validations  
+✅ Transaction management  
+
+## Getting Started
+
+1. Setup PostgreSQL database named `hospital`
+2. Update `application.yml` with your database credentials
+3. Run: `./mvnw spring-boot:run`
+4. API available at: `http://localhost:8080/api/v1`
+
+## API Endpoints Summary
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/admin/doctors` | Add doctor |
+| GET | `/admin/doctors` | List all doctors |
+| POST | `/admin/departments` | Create department |
+| GET | `/admin/departments` | List all departments |
+| PATCH | `/admin/departments/{id}/head-doctor/{doctorId}` | Assign head doctor |
+| GET | `/doctors/{id}` | Get doctor |
+| GET | `/doctors/{id}/appointments` | Doctor's appointments |
+| PATCH | `/doctors/{id}/appointments/{apptId}/complete` | Complete appointment |
+| POST | `/patients` | Register patient |
+| GET | `/patients/{id}` | Get patient |
+| POST | `/patients/{id}/appointments` | Book appointment |
+| GET | `/patients/{id}/appointments` | Patient's appointments |
+| PATCH | `/patients/{id}/appointments/{apptId}/cancel` | Cancel appointment |
+| POST | `/patients/{id}/insurance` | Add insurance |
+| GET | `/patients/{id}/insurance` | Get insurance |
+>>>>>>> 2d2637f (add security config)

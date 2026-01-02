@@ -1,9 +1,9 @@
 package com.hospitalapi.controller;
 
-import com.hospitalapi.dto.CreateDoctorRequest;
+import com.hospitalapi.dto.AppointmentResponse;
 import com.hospitalapi.dto.DoctorResponse;
+import com.hospitalapi.service.AppointmentService;
 import com.hospitalapi.service.DoctorService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,19 +16,23 @@ import java.util.List;
 public class DoctorController {
 
     private final DoctorService doctorService;
-
-    @PostMapping
-    public ResponseEntity<DoctorResponse> create(@Valid @RequestBody CreateDoctorRequest request) {
-        return ResponseEntity.ok(doctorService.createDoctor(request));
-    }
+    private final AppointmentService appointmentService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<DoctorResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<DoctorResponse> getDoctor(@PathVariable Long id) {
         return ResponseEntity.ok(doctorService.getDoctorById(id));
     }
 
-    @GetMapping
-    public ResponseEntity<List<DoctorResponse>> getByDepartment(@RequestParam Long departmentId) {
-        return ResponseEntity.ok(doctorService.getDoctorsByDepartment(departmentId));
+    @GetMapping("/{doctorId}/appointments")
+    public ResponseEntity<List<AppointmentResponse>> getAppointments(@PathVariable Long doctorId) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByDoctor(doctorId));
+    }
+
+    @PatchMapping("/{doctorId}/appointments/{appointmentId}/complete")
+    public ResponseEntity<Void> completeAppointment(
+            @PathVariable Long doctorId,
+            @PathVariable Long appointmentId) {
+        appointmentService.completeAppointment(doctorId, appointmentId);
+        return ResponseEntity.ok().build();
     }
 }

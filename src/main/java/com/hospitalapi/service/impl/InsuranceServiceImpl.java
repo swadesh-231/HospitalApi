@@ -33,14 +33,13 @@ public class InsuranceServiceImpl implements InsuranceService {
                 .validUntil(request.validUntil())
                 .build();
 
-        patient.setInsurance(insurance); // owning side
-
+        patient.setInsurance(insurance);
         Patient savedPatient = patientRepository.save(patient);
-        Insurance savedInsurance = savedPatient.getInsurance();
-        return mapToResponse(savedInsurance);
+        return mapToResponse(savedPatient.getInsurance());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public InsuranceResponse getInsuranceByPatient(Long patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
@@ -53,19 +52,11 @@ public class InsuranceServiceImpl implements InsuranceService {
         return mapToResponse(insurance);
     }
 
-    @Override
-    public void removeInsurance(Long patientId) {
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
-        patient.setInsurance(null); // orphanRemoval = true
-    }
-
     private InsuranceResponse mapToResponse(Insurance insurance) {
         return new InsuranceResponse(
                 insurance.getId(),
                 insurance.getPolicyNumber(),
                 insurance.getProvider(),
-                insurance.getValidUntil()
-        );
+                insurance.getValidUntil());
     }
 }

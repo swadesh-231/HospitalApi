@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,18 +23,27 @@ import java.util.List;
 @Transactional
 public class AppointmentServiceImpl implements AppointmentService {
 
+    private static final int APPOINTMENT_DURATION_MINUTES = 30;
+
     private final AppointmentRepository appointmentRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
 
     @Override
-    public AppointmentResponse createAppointment(CreateAppointmentRequest request) {
-
-        Patient patient = patientRepository.findById(request.patientId())
+    public AppointmentResponse createAppointment(Long patientId, CreateAppointmentRequest request) {
+        Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Patient not found"));
 
         Doctor doctor = doctorRepository.findById(request.doctorId())
                 .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
+
+        // Prevent double-booking
+        LocalDateTime startTime = request.appointmentTime().minusMinutes(APPOINTMENT_DURATION_MINUTES);
+        LocalDateTime endTime = request.appointmentTime().plusMinutes(APPOINTMENT_DURATION_MINUTES);
+
+        if (appointmentRepository.existsConflictingAppointment(request.doctorId(), startTime, endTime)) {
+            throw new IllegalStateException("Doctor is not available at this time");
+        }
 
         Appointment appointment = Appointment.builder()
                 .patient(patient)
@@ -47,6 +57,7 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AppointmentResponse getAppointment(Long id) {
         return appointmentRepository.findById(id)
                 .map(this::mapToResponse)
@@ -54,7 +65,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AppointmentResponse> getAppointmentsByPatient(Long patientId) {
+        if (!patientRepository.existsById(patientId)) {
+            throw new EntityNotFoundException("Patient not found");
+        }
         return appointmentRepository.findByPatientId(patientId)
                 .stream()
                 .map(this::mapToResponse)
@@ -62,7 +77,11 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<AppointmentResponse> getAppointmentsByDoctor(Long doctorId) {
+        if (!doctorRepository.existsById(doctorId)) {
+            throw new EntityNotFoundException("Doctor not found");
+        }
         return appointmentRepository.findByDoctorId(doctorId)
                 .stream()
                 .map(this::mapToResponse)
@@ -70,20 +89,37 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void cancelAppointment(Long id) {
-        Appointment appointment = getEntity(id);
+    public void cancelAppointment(Long patientId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+
+        // Validate patient owns this appointment
+        if (!appointment.getPatient().getId().equals(patientId)) {
+            throw new IllegalStateException("This appointment does not belong to this patient");
+        }
+
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
+            throw new IllegalStateException("Only scheduled appointments can be cancelled");
+        }
+
         appointment.setStatus(AppointmentStatus.CANCELLED);
     }
 
     @Override
-    public void completeAppointment(Long id) {
-        Appointment appointment = getEntity(id);
-        appointment.setStatus(AppointmentStatus.COMPLETED);
-    }
-
-    private Appointment getEntity(Long id) {
-        return appointmentRepository.findById(id)
+    public void completeAppointment(Long doctorId, Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new EntityNotFoundException("Appointment not found"));
+
+        // Validate doctor owns this appointment
+        if (!appointment.getDoctor().getId().equals(doctorId)) {
+            throw new IllegalStateException("This appointment does not belong to this doctor");
+        }
+
+        if (appointment.getStatus() != AppointmentStatus.SCHEDULED) {
+            throw new IllegalStateException("Only scheduled appointments can be completed");
+        }
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
     }
 
     private AppointmentResponse mapToResponse(Appointment appointment) {
@@ -92,7 +128,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                 appointment.getAppointmentTime(),
                 appointment.getStatus(),
                 appointment.getPatient().getName(),
-                appointment.getDoctor().getName()
-        );
+                appointment.getDoctor().getName());
     }
 }
