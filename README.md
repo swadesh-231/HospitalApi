@@ -1,167 +1,192 @@
 # Hospital Management API
 
-<<<<<<< HEAD
-A comprehensive RESTful API for managing hospital operations including patients, doctors, departments, appointments, and insurance information. Built with Spring Boot and PostgreSQL.
+A production-ready RESTful API for hospital management built with Spring Boot, Spring Security, and PostgreSQL.
 
 ## Features
 
-- **Patient Management**: Create, read, update, and delete patient records
-- **Doctor Management**: Manage doctor profiles and department assignments
-- **Department Management**: Organize departments and assign head doctors
-- **Appointment Scheduling**: Book, cancel, and complete appointments
-- **Insurance Management**: Add and manage patient insurance information
-- **Advanced Querying**: Filter appointments and search patients
+### 🔐 Security
+- JWT Authentication (stateless)
+- Role-based access control (ADMIN, DOCTOR, PATIENT)
+- Password encryption with BCrypt
+- CSRF protection disabled for REST API
+
+### 👨‍💼 Admin Operations (`/admin`)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/admin/doctors` | POST | Add new doctor |
+| `/admin/doctors` | GET | List all doctors |
+| `/admin/doctors/department/{id}` | GET | Doctors by department |
+| `/admin/departments` | POST | Create department |
+| `/admin/departments` | GET | List all departments |
+| `/admin/departments/{id}` | GET | Get department |
+| `/admin/departments/{id}/head-doctor/{doctorId}` | PATCH | Assign head doctor |
+
+### 👨‍⚕️ Doctor Operations (`/doctors`)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/doctors/{id}` | GET | View doctor profile |
+| `/doctors/{id}/appointments` | GET | View appointments |
+| `/doctors/{id}/appointments/{appointmentId}/complete` | PATCH | Complete appointment |
+
+### 🧑‍🤒 Patient Operations (`/patients`)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/patients` | POST | Register patient |
+| `/patients/{id}` | GET | Get patient |
+| `/patients/{id}/appointments` | POST | Book appointment |
+| `/patients/{id}/appointments` | GET | View appointments |
+| `/patients/{id}/appointments/{appointmentId}/cancel` | PATCH | Cancel appointment |
+| `/patients/{id}/insurance` | POST | Add insurance |
+| `/patients/{id}/insurance` | GET | View insurance |
+
+---
+
+## Business Rules
+
+| Rule | Description |
+|------|-------------|
+| **Unique Emails** | Patients and doctors can't share emails |
+| **No Double-Booking** | 30-minute appointment slots prevent conflicts |
+| **Ownership Validation** | Patients can only cancel their own appointments |
+| **Status Transitions** | Only SCHEDULED appointments can be cancelled/completed |
+| **Head Doctor Rule** | Head doctor must belong to the same department |
+| **Single Insurance** | One patient can have only one insurance policy |
+
+---
 
 ## Tech Stack
 
-- **Framework**: Spring Boot 3.x
-- **Language**: Java 17+
-- **Database**: PostgreSQL
-- **ORM**: Spring Data JPA (Hibernate)
-- **Build Tool**: Maven/Gradle
-- **Validation**: Jakarta Validation
-- **Mapping**: ModelMapper
+| Technology | Version |
+|------------|---------|
+| Java | 21 |
+| Spring Boot | 3.5 |
+| Spring Security | 6.x |
+| Spring Data JPA | 3.x |
+| PostgreSQL | 12+ |
+| Lombok | Latest |
 
-## Prerequisites
+---
 
-- Java 17 or higher
-- PostgreSQL 12+
-- Maven 3.6+ or Gradle 7+
+## Project Structure
 
-## Database Setup
+```
+src/main/java/com/hospitalapi/
+├── controller/        # REST Controllers (3)
+│   ├── AdminController
+│   ├── DoctorController
+│   └── PatientController
+├── service/           # Business Logic
+│   └── impl/          # Service Implementations
+├── repository/        # Data Access (5)
+├── entity/            # JPA Entities (5)
+│   └── enums/         # Gender, BloodGroup, AppointmentStatus
+├── dto/               # Request/Response DTOs (10)
+├── exception/         # Global Exception Handler
+└── security/          # Security Configuration
+```
 
-1. Create a PostgreSQL database:
+---
+
+## Data Models
+
+### Entities
+- **Patient** - name, email, birthDate, gender, bloodGroup, insurance
+- **Doctor** - name, email, specialization, department
+- **Department** - name, headDoctor
+- **Appointment** - appointmentTime, status, reason
+- **Insurance** - policyNumber, provider, validUntil
+
+### Enums
+- **Gender**: `MALE`, `FEMALE`, `OTHER`
+- **BloodGroupType**: `A_POSITIVE`, `A_NEGATIVE`, `B_POSITIVE`, `B_NEGATIVE`, `AB_POSITIVE`, `AB_NEGATIVE`, `O_POSITIVE`, `O_NEGATIVE`
+- **AppointmentStatus**: `SCHEDULED`, `COMPLETED`, `CANCELLED`
+
+---
+
+## Getting Started
+
+### 1. Database Setup
 ```sql
 CREATE DATABASE hospital;
 ```
 
-2. Update database credentials in `src/main/resources/application.yml`:
+### 2. Configure `application.yml`
 ```yaml
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/hospital
-    username: your_username
+    username: postgres
     password: your_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+server:
+  servlet:
+    context-path: /api/v1
 ```
 
-## Installation & Running
-
-1. Clone the repository:
+### 3. Run Application
 ```bash
-git clone <repository-url>
-cd hospital-api
+./mvnw spring-boot:run
 ```
 
-2. Build the project:
-```bash
-# Using Maven
-mvn clean install
-
-# Using Gradle
-gradle build
+### 4. Access API
+```
+http://localhost:8080/api/v1
 ```
 
-3. Run the application:
-```bash
-# Using Maven
-mvn spring-boot:run
+---
 
-# Using Gradle
-gradle bootRun
+## Error Handling
 
-# Using JAR
-java -jar target/hospital-api-0.0.1-SNAPSHOT.jar
-```
-
-The API will start on `http://localhost:8080`
-
-## API Endpoints
-
-### Patient Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/patients` | Create a new patient |
-| GET | `/patients/{id}` | Get patient by ID |
-| GET | `/patients` | Get all patients |
-| PUT | `/patients/{id}` | Update patient |
-| DELETE | `/patients/{id}` | Delete patient |
-
-**Request Body Example**:
+Standardized error response format:
 ```json
+{
+  "success": false,
+  "message": "Error message",
+  "errors": {"field": "validation error"},
+  "status": 400,
+  "timestamp": "2026-01-02T10:30:00"
+}
+```
+
+| Status | Description |
+|--------|-------------|
+| 200 | Success |
+| 400 | Bad Request / Validation Error |
+| 404 | Resource Not Found |
+| 409 | Conflict (duplicate) |
+| 500 | Server Error |
+
+---
+
+## Request Examples
+
+### Register Patient
+```json
+POST /api/v1/patients
 {
   "name": "John Doe",
   "birthDate": "1990-05-15",
-  "email": "john.doe@example.com",
+  "email": "john@example.com",
   "gender": "MALE",
   "bloodGroup": "O_POSITIVE"
 }
 ```
 
-### Doctor Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/doctors` | Create a new doctor |
-| GET | `/doctors/{id}` | Get doctor by ID |
-| GET | `/doctors?departmentId={id}` | Get doctors by department |
-
-**Request Body Example**:
+### Book Appointment
 ```json
+POST /api/v1/patients/1/appointments
 {
-  "name": "Dr. Smith",
-  "specialization": "Cardiology",
-  "email": "dr.smith@hospital.com",
-  "departmentId": 1
-}
-```
-
-### Department Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/departments` | Create a department |
-| GET | `/departments` | Get all departments |
-| PATCH | `/departments/{id}/head-doctor/{doctorId}` | Assign head doctor |
-
-**Request Body Example**:
-```json
-{
-  "name": "Cardiology"
-}
-```
-
-### Appointment Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/appointments` | Create appointment |
-| GET | `/appointments/{id}` | Get appointment by ID |
-| GET | `/appointments/patients/{patientId}` | Get patient's appointments |
-| GET | `/appointments/doctors/{doctorId}` | Get doctor's appointments |
-| PATCH | `/appointments/{id}/cancel` | Cancel appointment |
-| PATCH | `/appointments/{id}/complete` | Complete appointment |
-
-**Request Body Example**:
-```json
-{
-  "patientId": 1,
   "doctorId": 2,
   "appointmentTime": "2026-01-15T10:30:00",
   "reason": "Regular checkup"
 }
 ```
 
-### Insurance Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/patients/{patientId}/insurance` | Add insurance |
-| GET | `/patients/{patientId}/insurance` | Get patient's insurance |
-| DELETE | `/patients/{patientId}/insurance` | Remove insurance |
-
-**Request Body Example**:
+### Add Insurance
 ```json
+POST /api/v1/patients/1/insurance
 {
   "policyNumber": "INS123456",
   "provider": "HealthCare Plus",
@@ -169,239 +194,20 @@ The API will start on `http://localhost:8080`
 }
 ```
 
-## Data Models
+---
 
-### Enums
 
-**Gender**: `MALE`, `FEMALE`, `OTHER`
 
-**BloodGroupType**: `A_POSITIVE`, `A_NEGATIVE`, `B_POSITIVE`, `B_NEGATIVE`, `AB_POSITIVE`, `AB_NEGATIVE`, `O_POSITIVE`, `O_NEGATIVE`
-
-**AppointmentStatus**: `SCHEDULED`, `COMPLETED`, `CANCELLED`
-
-**RoleType**: `ADMIN`, `DOCTOR`, `PATIENT`
-
-## Error Handling
-
-The API uses a global exception handler that returns standardized error responses:
-
-```json
-{
-  "success": false,
-  "message": "Error message",
-  "errors": {
-    "field": "validation error"
-  },
-  "status": 400,
-  "timestamp": "2026-01-02T10:30:00"
-}
-```
-
-### Common HTTP Status Codes
-
-- `200 OK`: Successful request
-- `201 Created`: Resource created successfully
-- `204 No Content`: Successful deletion
-- `400 Bad Request`: Invalid request data
-- `404 Not Found`: Resource not found
-- `409 Conflict`: Duplicate resource
-- `500 Internal Server Error`: Server error
-
-## Business Rules
-
-1. **Department Names**: Must be unique
-2. **Email Addresses**: Must be unique for patients and doctors
-3. **Head Doctor Assignment**: Head doctor must belong to the same department
-4. **Insurance**: One patient can have only one insurance policy
-5. **Appointment Status**: Can be SCHEDULED, COMPLETED, or CANCELLED
-
-## Database Schema
-
-The application uses the following main entities:
-
-- **Patient**: Stores patient information with one-to-one relationship to Insurance
-- **Doctor**: Stores doctor information with many-to-one relationship to Department
-- **Department**: Stores department information with one-to-one relationship to head doctor
-- **Appointment**: Stores appointment information with many-to-one relationships to Patient and Doctor
-- **Insurance**: Stores insurance information with one-to-one relationship to Patient
-
-## Configuration
-
-### JPA Configuration
-
-The application uses `create-drop` DDL strategy which recreates the database schema on each startup. For production, change this to:
-
-```yaml
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: validate
-```
-
-### ModelMapper Configuration
-
-ModelMapper is configured with `skipNullEnabled(true)` to avoid overwriting existing values with nulls during mapping.
-
-## Development
-
-### Adding New Features
-
-1. Create entity in `com.hospitalapi.entity`
-2. Create repository in `com.hospitalapi.repository`
-3. Create DTOs in `com.hospitalapi.dto`
-4. Create service interface in `com.hospitalapi.service`
-5. Create service implementation in `com.hospitalapi.service.impl`
-6. Create controller in `com.hospitalapi.controller`
-
-### Testing
-
-Run tests using:
-```bash
-# Maven
-mvn test
-
-# Gradle
-gradle test
-```
-=======
-A beginner-friendly Spring Boot REST API for hospital management.
-
-## Features
-
-### Admin Operations (`/admin`)
-- Add doctors to the system
-- Create hospital departments
-- Assign head doctor to departments
-- View all doctors and departments
-
-### Doctor Operations (`/doctors`)
-- View doctor profile
-- See scheduled appointments
-- Complete appointments
-
-### Patient Operations (`/patients`)
-- Patient registration
-- Book appointment with doctor
-- View and cancel appointments
-- Add and view insurance
-
-## Real-World Business Logic
-
-| Feature | Description |
-|---------|-------------|
-| Duplicate Prevention | Patients/Doctors can't have same email |
-| No Double-Booking | Doctors have 30-min appointment slots |
-| Status Validation | Only scheduled appointments can be cancelled/completed |
-| Data Integrity | Can't delete patient with active appointments |
-
-## Tech Stack
-
-- **Java 21**
-- **Spring Boot 3.5**
-- **Spring Data JPA**
-- **PostgreSQL**
-- **Lombok**
->>>>>>> 2d2637f (add security config)
-
-## Project Structure
-
-```
-<<<<<<< HEAD
-src/
-├── main/
-│   ├── java/com/hospitalapi/
-│   │   ├── config/           # Configuration classes
-│   │   ├── controller/       # REST controllers
-│   │   ├── dto/             # Data Transfer Objects
-│   │   ├── entity/          # JPA entities
-│   │   │   └── enums/       # Enum types
-│   │   ├── exception/       # Exception handling
-│   │   ├── repository/      # Data repositories
-│   │   └── service/         # Business logic
-│   │       └── impl/        # Service implementations
-│   └── resources/
-│       └── application.yml  # Application configuration
-└── test/                    # Test classes
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Contact
-
-For questions or support, please contact the development team.
-
-## Future Enhancements
-
-- [ ] Authentication and Authorization (Spring Security)
-- [ ] Role-based access control
-- [ ] Appointment conflict detection
-- [ ] Email notifications
-- [ ] Medical records management
-- [ ] Billing system integration
-- [ ] API documentation (Swagger/OpenAPI)
-- [ ] Pagination for list endpoints
-- [ ] Advanced search and filtering
-- [ ] Audit logging
-=======
-src/main/java/com/hospitalapi/
-├── controller/          # 3 REST Controllers
-│   ├── AdminController
-│   ├── DoctorController
-│   └── PatientController
-├── service/             # Business logic
-├── repository/          # Data access
-├── entity/              # JPA entities
-├── dto/                 # Request/Response DTOs
-└── exception/           # Global error handling
-```
-
-## Is This Beginner Friendly?
-
-**Yes!** This project demonstrates:
-
-✅ Clean REST API design with proper HTTP methods  
-✅ Service layer pattern (separation of concerns)  
-✅ DTO pattern (never expose entities directly)  
+✅ Clean REST API design  
+✅ Service layer pattern  
+✅ DTO pattern  
 ✅ Global exception handling  
-✅ Input validation with Jakarta Validation  
-✅ JPA relationships (OneToOne, OneToMany, ManyToOne)  
-✅ Real-world business validations  
+✅ Input validation  
+✅ JPA relationships  
+✅ Real-world business logic  
 ✅ Transaction management  
+✅ Spring Security configuration  
 
-## Getting Started
+---
 
-1. Setup PostgreSQL database named `hospital`
-2. Update `application.yml` with your database credentials
-3. Run: `./mvnw spring-boot:run`
-4. API available at: `http://localhost:8080/api/v1`
 
-## API Endpoints Summary
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/admin/doctors` | Add doctor |
-| GET | `/admin/doctors` | List all doctors |
-| POST | `/admin/departments` | Create department |
-| GET | `/admin/departments` | List all departments |
-| PATCH | `/admin/departments/{id}/head-doctor/{doctorId}` | Assign head doctor |
-| GET | `/doctors/{id}` | Get doctor |
-| GET | `/doctors/{id}/appointments` | Doctor's appointments |
-| PATCH | `/doctors/{id}/appointments/{apptId}/complete` | Complete appointment |
-| POST | `/patients` | Register patient |
-| GET | `/patients/{id}` | Get patient |
-| POST | `/patients/{id}/appointments` | Book appointment |
-| GET | `/patients/{id}/appointments` | Patient's appointments |
-| PATCH | `/patients/{id}/appointments/{apptId}/cancel` | Cancel appointment |
-| POST | `/patients/{id}/insurance` | Add insurance |
-| GET | `/patients/{id}/insurance` | Get insurance |
->>>>>>> 2d2637f (add security config)
