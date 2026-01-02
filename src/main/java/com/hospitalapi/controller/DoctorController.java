@@ -18,8 +18,7 @@ public class DoctorController {
     private final DoctorService doctorService;
 
     @PostMapping
-    public ResponseEntity<DoctorResponse> create(
-            @Valid @RequestBody CreateDoctorRequest request) {
+    public ResponseEntity<DoctorResponse> create(@Valid @RequestBody CreateDoctorRequest request) {
         return ResponseEntity.ok(doctorService.createDoctor(request));
     }
 
@@ -29,9 +28,7 @@ public class DoctorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DoctorResponse>> getByDepartment(
-            @RequestParam Long departmentId) {
-        return ResponseEntity.ok(
-                doctorService.getDoctorsByDepartment(departmentId));
+    public ResponseEntity<List<DoctorResponse>> getByDepartment(@RequestParam Long departmentId) {
+        return ResponseEntity.ok(doctorService.getDoctorsByDepartment(departmentId));
     }
 }

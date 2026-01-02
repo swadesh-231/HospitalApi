@@ -19,8 +19,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
 
     @PostMapping
-    public ResponseEntity<AppointmentResponse> create(
-            @Valid @RequestBody CreateAppointmentRequest request) {
+    public ResponseEntity<AppointmentResponse> create(@Valid @RequestBody CreateAppointmentRequest request) {
         return ResponseEntity.ok(appointmentService.createAppointment(request));
     }
 
@@ -30,22 +29,17 @@ public class AppointmentController {
     }
 
     @GetMapping("/patients/{patientId}")
-    public ResponseEntity<List<AppointmentResponse>> byPatient(
-            @PathVariable Long patientId) {
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsByPatient(patientId));
+    public ResponseEntity<List<AppointmentResponse>> byPatient(@PathVariable Long patientId) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByPatient(patientId));
     }
 
     @GetMapping("/doctors/{doctorId}")
-    public ResponseEntity<List<AppointmentResponse>> byDoctor(
-            @PathVariable Long doctorId) {
-        return ResponseEntity.ok(
-                appointmentService.getAppointmentsByDoctor(doctorId));
+    public ResponseEntity<List<AppointmentResponse>> byDoctor(@PathVariable Long doctorId) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByDoctor(doctorId));
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancel(@PathVariable Long id) {
-        appointmentService.cancelAppointment(id);
+    public ResponseEntity<Void> cancel(@PathVariable Long id) {appointmentService.cancelAppointment(id);
         return ResponseEntity.ok().build();
     }
 

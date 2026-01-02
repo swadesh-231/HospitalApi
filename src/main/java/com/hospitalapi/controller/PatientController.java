@@ -19,8 +19,7 @@ public class PatientController {
     private final PatientService patientService;
 
     @PostMapping
-    public ResponseEntity<PatientResponse> create(
-            @Valid @RequestBody CreatePatientRequest request) {
+    public ResponseEntity<PatientResponse> create(@Valid @RequestBody CreatePatientRequest request) {
         return ResponseEntity.ok(patientService.createPatient(request));
     }
 
@@ -35,9 +34,7 @@ public class PatientController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PatientResponse> update(
-            @PathVariable Long id,
-            @Valid @RequestBody CreatePatientRequest request) {
+    public ResponseEntity<PatientResponse> update(@PathVariable Long id, @Valid @RequestBody CreatePatientRequest request) {
         return ResponseEntity.ok(patientService.updatePatient(id, request));
     }
 

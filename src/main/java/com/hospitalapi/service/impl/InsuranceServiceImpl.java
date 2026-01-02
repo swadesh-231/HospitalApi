@@ -34,9 +34,10 @@ public class InsuranceServiceImpl implements InsuranceService {
                 .build();
 
         patient.setInsurance(insurance); // owning side
-        insurance.setPatient(patient);
 
-        return mapToResponse(insurance);
+        Patient savedPatient = patientRepository.save(patient);
+        Insurance savedInsurance = savedPatient.getInsurance();
+        return mapToResponse(savedInsurance);
     }
 
     @Override
