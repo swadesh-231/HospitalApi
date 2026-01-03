@@ -1,16 +1,19 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/hospital
-    username: postgres
-    password: 456784
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
-
+      ddl-auto: ${JPA_DDL_AUTO}
 
 server:
   servlet:
-    context-path: /api/v1
+    context-path: ${SERVER_CONTEXT_PATH}
 
-
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-expiration-ms: ${JWT_ACCESS_TOKEN_EXP_MS}
+#    refresh-token-expiration-ms: ${JWT_REFRESH_TOKEN_EXP_MS}

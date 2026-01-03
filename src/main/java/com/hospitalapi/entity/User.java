@@ -27,6 +27,8 @@ public class User implements UserDetails {
     private Long id;
     @Column(unique = true, nullable = false, length = 50)
     private String username;
+//    @Column(unique = true, nullable = false, length = 50)
+//    private String email;
     @Column(nullable = false)
     private String password;
     @Enumerated(EnumType.STRING)
@@ -49,7 +51,6 @@ public class User implements UserDetails {
             authorities.add(new SimpleGrantedAuthority("ROLE_" + role.name()));
             authorities.addAll(RolePermissionMapping.getAuthoritiesForRole(role));
         }
-
         return authorities;
     }
 
