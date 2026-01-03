@@ -25,25 +25,22 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = false, length = 255)
     private String username;
-//    @Column(unique = true, nullable = false, length = 50)
-//    private String email;
-    @Column(nullable = false)
+    @Column(unique = true, length = 255)
+    private String email;
     private String password;
     @Enumerated(EnumType.STRING)
     @Column(name = "provider_type")
     private AuthProvider authProvider;
 
-
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
+    @Builder.Default
     private Set<RoleType> roles = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();

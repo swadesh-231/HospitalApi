@@ -1,4 +1,4 @@
-package com.hospitalapi.security.filter;
+package com.hospitalapi.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
