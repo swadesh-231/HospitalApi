@@ -5,6 +5,9 @@ import com.hospitalapi.dto.CreateAppointmentRequest;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 public interface AppointmentService {
     AppointmentResponse createAppointment(Long patientId, CreateAppointmentRequest request);
 
@@ -12,7 +15,11 @@ public interface AppointmentService {
 
     List<AppointmentResponse> getAppointmentsByPatient(Long patientId);
 
+    Page<AppointmentResponse> getAppointmentsByPatient(Long patientId, Pageable pageable);
+
     List<AppointmentResponse> getAppointmentsByDoctor(Long doctorId);
+
+    Page<AppointmentResponse> getAppointmentsByDoctor(Long doctorId, Pageable pageable);
 
     void cancelAppointment(Long patientId, Long appointmentId);
 

@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 @RestController
 @RequestMapping("/patients")
@@ -39,8 +41,10 @@ public class PatientController {
     }
 
     @GetMapping("/{patientId}/appointments")
-    public ResponseEntity<List<AppointmentResponse>> getAppointments(@PathVariable Long patientId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByPatient(patientId));
+    public ResponseEntity<Page<AppointmentResponse>> getAppointments(
+            @PathVariable Long patientId,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByPatient(patientId, pageable));
     }
 
     @PatchMapping("/{patientId}/appointments/{appointmentId}/cancel")

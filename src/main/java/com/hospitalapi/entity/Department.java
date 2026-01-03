@@ -3,8 +3,9 @@ package com.hospitalapi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set; // Keeping Set just in case, but List is used now
 
 @Entity
 @AllArgsConstructor
@@ -25,5 +26,5 @@ public class Department {
     private Doctor headDoctor;
 
     @OneToMany(mappedBy = "department")
-    private Set<Doctor> doctors = new HashSet<>();
+    private List<Doctor> doctors = new ArrayList<>();
 }

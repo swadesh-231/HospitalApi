@@ -8,6 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 import java.util.List;
 
 @RestController
@@ -25,13 +29,15 @@ public class AdminController {
     }
 
     @GetMapping("/doctors")
-    public ResponseEntity<List<DoctorResponse>> getAllDoctors() {
-        return ResponseEntity.ok(doctorService.getAllDoctors());
+    public ResponseEntity<Page<DoctorResponse>> getAllDoctors(@PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(doctorService.getAllDoctors(pageable));
     }
 
     @GetMapping("/doctors/department/{departmentId}")
-    public ResponseEntity<List<DoctorResponse>> getDoctorsByDepartment(@PathVariable Long departmentId) {
-        return ResponseEntity.ok(doctorService.getDoctorsByDepartment(departmentId));
+    public ResponseEntity<Page<DoctorResponse>> getDoctorsByDepartment(
+            @PathVariable Long departmentId,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(doctorService.getDoctorsByDepartment(departmentId, pageable));
     }
 
     // Department Management
@@ -41,8 +47,8 @@ public class AdminController {
     }
 
     @GetMapping("/departments")
-    public ResponseEntity<List<DepartmentResponse>> getAllDepartments() {
-        return ResponseEntity.ok(departmentService.getAllDepartments());
+    public ResponseEntity<Page<DepartmentResponse>> getAllDepartments(@PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(departmentService.getAllDepartments(pageable));
     }
 
     @GetMapping("/departments/{id}")

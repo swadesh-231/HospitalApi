@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -48,10 +50,15 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public Page<DepartmentResponse> getAllDepartments(Pageable pageable) {
+        return departmentRepository.findAll(pageable)
+                .map(this::mapToResponse);
+    }
+
+    @Override
     public DepartmentResponse getDepartmentById(Long id) {
         Department department = departmentRepository.findById(id)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Department not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Department not found"));
 
         return mapToResponse(department);
     }
@@ -60,12 +67,10 @@ public class DepartmentServiceImpl implements DepartmentService {
     public void assignHeadDoctor(Long departmentId, Long doctorId) {
 
         Department department = departmentRepository.findById(departmentId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Department not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Department not found"));
 
         Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() ->
-                        new EntityNotFoundException("Doctor not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Doctor not found"));
 
         // critical rule: head doctor must belong to same department
         if (!doctor.getDepartment().getId().equals(departmentId)) {
@@ -81,7 +86,6 @@ public class DepartmentServiceImpl implements DepartmentService {
                 department.getName(),
                 department.getHeadDoctor() != null
                         ? department.getHeadDoctor().getName()
-                        : null
-        );
+                        : null);
     }
 }

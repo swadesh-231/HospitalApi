@@ -34,3 +34,16 @@ springdoc:
     path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
+
+# Actuator Config
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers,env,mappings
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -51,18 +53,18 @@ public class DoctorServiceImpl implements DoctorService {
         return mapToResponse(doctor);
     }
 
+
+
     @Override
     @Transactional(readOnly = true)
-    public List<DoctorResponse> getDoctorsByDepartment(Long departmentId) {
+    public Page<DoctorResponse> getDoctorsByDepartment(Long departmentId, Pageable pageable) {
         // Verify department exists
         if (!departmentRepository.existsById(departmentId)) {
             throw new EntityNotFoundException("Department not found");
         }
 
-        return doctorRepository.findByDepartmentId(departmentId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        return doctorRepository.findByDepartmentId(departmentId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
@@ -72,6 +74,13 @@ public class DoctorServiceImpl implements DoctorService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<DoctorResponse> getAllDoctors(Pageable pageable) {
+        return doctorRepository.findAll(pageable)
+                .map(this::mapToResponse);
     }
 
     private DoctorResponse mapToResponse(Doctor doctor) {

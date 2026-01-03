@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -78,6 +80,16 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<AppointmentResponse> getAppointmentsByPatient(Long patientId, Pageable pageable) {
+        if (!patientRepository.existsById(patientId)) {
+            throw new EntityNotFoundException("Patient not found");
+        }
+        return appointmentRepository.findByPatientId(patientId, pageable)
+                .map(this::mapToResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<AppointmentResponse> getAppointmentsByDoctor(Long doctorId) {
         if (!doctorRepository.existsById(doctorId)) {
             throw new EntityNotFoundException("Doctor not found");
@@ -86,6 +98,16 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AppointmentResponse> getAppointmentsByDoctor(Long doctorId, Pageable pageable) {
+        if (!doctorRepository.existsById(doctorId)) {
+            throw new EntityNotFoundException("Doctor not found");
+        }
+        return appointmentRepository.findByDoctorId(doctorId, pageable)
+                .map(this::mapToResponse);
     }
 
     @Override
