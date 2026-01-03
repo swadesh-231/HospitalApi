@@ -60,7 +60,6 @@ public class AuthServiceImpl implements AuthService {
         @Override
         public ResponseEntity<LoginResponse> handleOAuth2LoginRequest(OAuth2User oAuth2User, String registrationId) {
                 String email = oAuth2User.getAttribute("email");
-                String name = oAuth2User.getAttribute("name");
 
                 log.info("OAuth2 login attempt - provider: {}, email: {}", registrationId, email);
 

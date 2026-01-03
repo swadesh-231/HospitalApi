@@ -1,134 +1,199 @@
-# Hospital Management API
+# 🏥 Hospital Management REST API
 
-A production-ready RESTful API for hospital management built with Spring Boot, featuring JWT authentication, OAuth2 Google login, and Role-Based Access Control (RBAC).
+A production-ready, secure RESTful API for hospital management built with **Java 21**, **Spring Boot 3.5**, and **PostgreSQL**. Features JWT authentication, OAuth2 Google login, and role-based access control.
 
-## 🚀 Features
+---
 
-- **JWT Authentication** - Stateless token-based auth
-- **OAuth2 Google Login** - Sign in with Google
-- **Role-Based Access Control** - ADMIN, DOCTOR, PATIENT roles
-- **RESTful API Design** - Clean endpoint structure
-- **Global Exception Handling** - Standardized error responses
+## 📊 Project Statistics
+
+| Metric | Count |
+|--------|-------|
+| **Lines of Code** | ~1,900 |
+| **REST Endpoints** | 19 |
+| **Java Files** | 64 |
+| **Controllers** | 4 |
+| **Services** | 14 |
+| **JPA Entities** | 6 |
+| **DTOs** | 14 |
+| **Repositories** | 6 |
+
+---
+
+## ✨ Key Features
+
+### 🔐 Security & Authentication
+- **JWT Authentication** - Stateless token-based authentication
+- **OAuth2 Google Login** - Sign in with Google integration
+- **Role-Based Access Control (RBAC)** - 3 roles: ADMIN, DOCTOR, PATIENT
+- **Password Encryption** - BCrypt hashing
+- **Stateless Sessions** - No server-side session storage
+
+### 👨‍💼 Admin Operations
+- Create, view, and manage doctors
+- Create and manage hospital departments
+- Assign head doctors to departments
+- View doctors by department
+
+### 👨‍⚕️ Doctor Operations
+- View personal profile
+- View assigned appointments
+- Mark appointments as completed
+
+### 🏥 Patient Operations
+- Register patient profile
+- Book appointments with doctors
+- View and cancel appointments
+- Add and manage insurance information
+
+### 📖 API Documentation
+- **Swagger UI** - Interactive API documentation
+- **OpenAPI 3.0** - Standardized API specification
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Technology | Version |
-|------------|---------|
-| Java | 21 |
-| Spring Boot | 3.5 |
-| Spring Security | 6.x |
-| Spring Data JPA | 3.x |
-| PostgreSQL | 12+ |
-| JWT (jjwt) | 0.12.x |
-| Lombok | Latest |
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Java | 21 | Core Language |
+| Spring Boot | 3.5.x | Application Framework |
+| Spring Security | 6.x | Authentication & Authorization |
+| Spring Data JPA | 3.x | Data Persistence |
+| PostgreSQL | 12+ | Production Database |
+| H2 Database | 2.x | Test Database |
+| JWT (jjwt) | 0.13.x | Token Generation |
+| SpringDoc OpenAPI | 2.8.x | API Documentation |
+| Lombok | Latest | Boilerplate Reduction |
+| Maven | 3.x | Build Tool |
 
 ---
 
-## 📦 Getting Started
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      CLIENT (Postman/Frontend)              │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SECURITY LAYER                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │ JwtAuthFilter│  │OAuth2Handler│  │ SecurityConfig      │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    CONTROLLER LAYER                         │
+│  ┌────────────┐ ┌────────────┐ ┌─────────┐ ┌─────────────┐  │
+│  │AuthController│ │AdminController│ │DoctorController│ │PatientController│ │
+│  └────────────┘ └────────────┘ └─────────┘ └─────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SERVICE LAYER                            │
+│  AuthService, DoctorService, PatientService,                │
+│  AppointmentService, DepartmentService, InsuranceService    │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   REPOSITORY LAYER                          │
+│  UserRepository, DoctorRepository, PatientRepository,       │
+│  AppointmentRepository, DepartmentRepository, InsuranceRepo │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    DATABASE (PostgreSQL)                    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Project Structure
+
+```
+src/main/java/com/hospitalapi/
+├── config/              # Configuration classes
+│   └── OpenApiConfig    # Swagger/OpenAPI configuration
+├── controller/          # REST Controllers
+│   ├── AuthController   # Authentication endpoints
+│   ├── AdminController  # Admin operations
+│   ├── DoctorController # Doctor operations
+│   └── PatientController# Patient operations
+├── dto/                 # Data Transfer Objects
+│   ├── LoginRequest/Response
+│   ├── SignUpRequest/Response
+│   ├── CreateDoctorRequest/DoctorResponse
+│   ├── CreatePatientRequest/PatientResponse
+│   ├── CreateAppointmentRequest/AppointmentResponse
+│   └── ...14 DTOs total
+├── entity/              # JPA Entities
+│   ├── User             # Authentication user
+│   ├── Patient          # Patient information
+│   ├── Doctor           # Doctor information
+│   ├── Department       # Hospital departments
+│   ├── Appointment      # Patient-Doctor appointments
+│   ├── Insurance        # Patient insurance
+│   └── enums/           # RoleType, AuthProvider, etc.
+├── exception/           # Global Exception Handler
+├── repository/          # JPA Repositories
+├── security/            # Security Configuration
+│   ├── SecurityConfig   # Main security config
+│   ├── jwt/             # JWT Service & Filter
+│   └── handler/         # OAuth2 & Auth handlers
+└── service/             # Business Logic
+    └── impl/            # Service implementations
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Java 21+
+- PostgreSQL 12+
+- Maven 3.x
 
 ### 1. Clone & Configure
 
-Create a `.env` file in the project root:
-
+Create a `.env` file:
 ```env
-# Database
-DB_URL=jdbc:postgresql://localhost:5432/hospital_db
+DB_URL=jdbc:postgresql://localhost:5432/hospital
 DB_USERNAME=postgres
 DB_PASSWORD=your_password
 JPA_DDL_AUTO=update
-
-# Server
-SERVER_CONTEXT_PATH=/api
-
-# JWT (secret must be 32+ characters)
-JWT_SECRET=your_super_secret_key_at_least_32_chars
+SERVER_CONTEXT_PATH=/api/v1
+JWT_SECRET=your_secret_key_minimum_32_characters_long
 JWT_ACCESS_TOKEN_EXP_MS=3600000
-
-# Google OAuth2 (optional)
-GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-secret
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_secret
 ```
 
 ### 2. Run Application
-
 ```bash
 ./mvnw spring-boot:run
 ```
 
 ### 3. Access API
-
-```
-http://localhost:8080/api
-```
-
----
-
-## � Swagger UI (Interactive API Docs)
-
-Once the app is running, open in your browser:
-
-```
-http://localhost:8080/api/swagger-ui.html
-```
-
-**Features:**
-- 🔍 Browse all API endpoints
-- 🔐 Authorize with JWT token (click "Authorize" button)
-- 🧪 Test endpoints directly from the browser
-
----
-
-## �🔐 Authentication
-
-### Register a New User
-```bash
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username": "john", "password": "pass123"}'
-```
-
-### Login
-```bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username": "john", "password": "pass123"}'
-```
-**Response:** `{"jwt": "eyJhbGc...", "userId": 1}`
-
-### Google OAuth2 Login
-Open in browser: `http://localhost:8080/api/oauth2/authorization/google`
-
-### Using JWT Token
-```bash
-curl http://localhost:8080/api/patients/1 \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN"
-```
-
----
-
-## 🔒 Role-Based Access Control
-
-| Role | Endpoints | Assigned |
-|------|-----------|----------|
-| **PATIENT** | `/patients/**` | Default for new users |
-| **DOCTOR** | `/doctors/**` | Manual assignment |
-| **ADMIN** | `/admin/**` | Manual assignment |
-
-> New users (signup/OAuth2) automatically receive the **PATIENT** role.
+- **Swagger UI**: `http://localhost:8080/api/v1/swagger-ui.html`
+- **API Docs**: `http://localhost:8080/api/v1/v3/api-docs`
 
 ---
 
 ## 📋 API Endpoints
 
-### Auth (`/auth`) - Public
+### 🔓 Authentication (Public)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/auth/register` | Register new user |
 | POST | `/auth/login` | Login & get JWT |
+| GET | `/oauth2/authorization/google` | Google OAuth login |
 
-### Admin (`/admin`) - ADMIN Role Required
+### 👑 Admin Endpoints (ADMIN Role)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | `/admin/doctors` | Create doctor |
@@ -139,17 +204,17 @@ curl http://localhost:8080/api/patients/1 \
 | GET | `/admin/departments/{id}` | Get department |
 | PATCH | `/admin/departments/{id}/head-doctor/{doctorId}` | Assign head doctor |
 
-### Doctor (`/doctors`) - DOCTOR Role Required
+### 🩺 Doctor Endpoints (DOCTOR Role)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/doctors/{id}` | Get doctor profile |
 | GET | `/doctors/{id}/appointments` | View appointments |
 | PATCH | `/doctors/{id}/appointments/{apptId}/complete` | Complete appointment |
 
-### Patient (`/patients`) - PATIENT Role Required
+### 🏥 Patient Endpoints (PATIENT Role)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/patients` | Register patient profile |
+| POST | `/patients` | Register patient |
 | GET | `/patients/{id}` | Get patient profile |
 | POST | `/patients/{id}/appointments` | Book appointment |
 | GET | `/patients/{id}/appointments` | View appointments |
@@ -159,55 +224,50 @@ curl http://localhost:8080/api/patients/1 \
 
 ---
 
-## 📁 Project Structure
+## 🔒 Security Implementation
 
+### Role-Based Access Control
 ```
-src/main/java/com/hospitalapi/
-├── controller/          # REST Controllers
-│   ├── AuthController
-│   ├── AdminController
-│   ├── DoctorController
-│   └── PatientController
-├── service/             # Business Logic
-│   └── impl/
-├── repository/          # JPA Repositories
-├── entity/              # JPA Entities
-│   └── enums/           # RoleType, AuthProvider, etc.
-├── dto/                 # Request/Response DTOs
-├── exception/           # Global Exception Handler
-└── security/
-    ├── SecurityConfig   # Security configuration
-    ├── jwt/             # JWT Service
-    ├── filter/          # JwtAuthFilter
-    └── handler/         # OAuth2SuccessHandler, AuthEntryPointJwt
+ADMIN  → /admin/**
+DOCTOR → /doctors/**
+PATIENT → /patients/**
 ```
+
+### JWT Token Flow
+1. User registers/logs in → Server generates JWT
+2. Client stores JWT → Sends in Authorization header
+3. JwtAuthFilter validates token → Sets SecurityContext
+4. Controller method executes if authorized
+
+### OAuth2 Google Flow
+1. User clicks "Login with Google"
+2. Redirect to Google OAuth consent screen
+3. Google authenticates → Redirects back with code
+4. Server exchanges code → Creates/finds user → Returns JWT
 
 ---
 
-## 🗄️ Data Models
+## 📝 Business Rules
 
-### Entities
-- **User** - username, email, password, roles, authProvider
-- **Patient** - name, email, birthDate, gender, bloodGroup
-- **Doctor** - name, email, specialization, department
-- **Department** - name, headDoctor
-- **Appointment** - appointmentTime, status, reason
-- **Insurance** - policyNumber, provider, validUntil
-
-### Enums
-- **RoleType**: `ADMIN`, `DOCTOR`, `PATIENT`
-- **AuthProvider**: `EMAIL`, `GOOGLE`, `GITHUB`, `FACEBOOK`
-- **AppointmentStatus**: `SCHEDULED`, `COMPLETED`, `CANCELLED`
+| Rule | Description |
+|------|-------------|
+| **Unique Emails** | Patients and doctors cannot share emails |
+| **No Double-Booking** | 30-minute slots prevent appointment conflicts |
+| **Ownership Validation** | Users can only modify their own resources |
+| **Status Transitions** | Only SCHEDULED appointments can be cancelled/completed |
+| **Head Doctor Rule** | Head doctor must belong to the same department |
+| **Single Insurance** | One patient can have only one active insurance |
 
 ---
 
-## ⚠️ Error Response Format
+## ⚠️ Error Handling
 
+Standardized JSON error responses:
 ```json
 {
   "success": false,
-  "message": "Error message",
-  "errors": {"field": "validation error"},
+  "message": "Error description",
+  "errors": {"field": "validation message"},
   "status": 400,
   "timestamp": "2026-01-03T10:30:00"
 }
@@ -217,50 +277,45 @@ src/main/java/com/hospitalapi/
 |--------|-------------|
 | 200 | Success |
 | 400 | Bad Request / Validation Error |
-| 401 | Unauthorized |
-| 403 | Forbidden (role mismatch) |
-| 404 | Not Found |
-| 500 | Server Error |
+| 401 | Unauthorized (invalid/missing token) |
+| 403 | Forbidden (insufficient role) |
+| 404 | Resource Not Found |
+| 409 | Conflict (duplicate resource) |
+| 500 | Internal Server Error |
 
 ---
 
-## 🧪 Quick Test
+## 🧪 Testing
 
 ```bash
-# 1. Register
-curl -X POST http://localhost:8080/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username": "test", "password": "pass123"}'
+# Run all tests
+./mvnw test
 
-# 2. Login (save the JWT)
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username": "test", "password": "pass123"}'
-
-# 3. Access patient endpoint (should work - PATIENT role)
-curl http://localhost:8080/api/patients/1 \
-  -H "Authorization: Bearer YOUR_JWT"
-
-# 4. Access admin endpoint (should fail - 403 Forbidden)
-curl http://localhost:8080/api/admin/doctors \
-  -H "Authorization: Bearer YOUR_JWT"
+# Run with coverage
+./mvnw test jacoco:report
 ```
 
----
-
-## ✅ Production Checklist
-
-- [x] JWT Authentication
-- [x] OAuth2 Google Login
-- [x] Role-Based Access Control
-- [x] Service Layer Pattern
-- [x] DTO Pattern
-- [x] Global Exception Handling
-- [x] Input Validation
-- [x] JPA Relationships
-- [x] Transaction Management
-- [x] Spring Security Configuration
+Tests use H2 in-memory database for isolation.
 
 ---
 
+
+
+
+## 🔮 Future Enhancements
+
+- [ ] Add email notifications for appointments
+- [ ] Implement refresh token mechanism
+- [ ] Add appointment reminders
+- [ ] Integrate payment gateway
+- [ ] Add medical records management
+- [ ] Implement rate limiting
+- [ ] Add Docker containerization
+- [ ] Set up CI/CD pipeline
+
+---
+
+## 👨‍💻 Author
+
+Built with ❤️ using Spring Boot
 
