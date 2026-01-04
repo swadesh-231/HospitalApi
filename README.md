@@ -8,7 +8,6 @@ A production-ready, secure RESTful API for hospital management built with **Java
 
 | Metric | Count |
 |--------|-------|
-| **Lines of Code** | ~1,900 |
 | **REST Endpoints** | 19 |
 | **Java Files** | 64 |
 | **Controllers** | 4 |
