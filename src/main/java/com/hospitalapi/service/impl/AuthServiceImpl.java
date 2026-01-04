@@ -1,9 +1,7 @@
 package com.hospitalapi.service.impl;
 
-import com.hospitalapi.dto.LoginRequest;
-import com.hospitalapi.dto.LoginResponse;
-import com.hospitalapi.dto.SignUpRequest;
-import com.hospitalapi.dto.SignupResponse;
+
+import com.hospitalapi.dto.*;
 import com.hospitalapi.entity.User;
 import com.hospitalapi.entity.enums.AuthProvider;
 import com.hospitalapi.entity.enums.RoleType;
@@ -51,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
                                 User.builder()
                                                 .username(signupRequest.username())
                                                 .password(passwordEncoder.encode(signupRequest.password()))
-                                                .authProvider(AuthProvider.EMAIL)
+                                                .authProvider(AuthProvider.LOCAL)
                                                 .roles(Set.of(RoleType.PATIENT))
                                                 .build());
                 return new SignupResponse(newUser.getId(), newUser.getUsername());
@@ -89,5 +87,14 @@ public class AuthServiceImpl implements AuthService {
                         case "google" -> AuthProvider.GOOGLE;
                         default -> AuthProvider.EMAIL;
                 };
+        }
+
+        @Override
+        public CurrentUserResponse getCurrentUser(User user) {
+                return new CurrentUserResponse(
+                                user.getId(),
+                                user.getUsername(),
+                                user.getEmail(),
+                                user.getRoles());
         }
 }

@@ -21,7 +21,7 @@ spring:
 
 server:
   servlet:
-    context-path: ${SERVER_CONTEXT_PATH:/api}
+    context-path: ${SERVER_CONTEXT_PATH:/api/v1}
 
 security:
   jwt:
